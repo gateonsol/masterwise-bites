@@ -8,13 +8,14 @@ import CategoriesSection from '@/components/CategoriesSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import CallToActionSection from '@/components/CallToActionSection';
 import { useToast } from '@/components/ui/use-toast';
+import { GoalData } from '@/components/goal-setting/types';
 
 const Index = () => {
   const [showGoalSetting, setShowGoalSetting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   
-  const handleGoalComplete = (data: any) => {
+  const handleGoalComplete = (data: GoalData) => {
     toast({
       title: "Goal set successfully!",
       description: `We're creating your learning path for ${data.skill}.`,
