@@ -282,10 +282,6 @@ const SkillGrid = ({ category, onStart }: SkillGridProps) => {
   );
 };
 
-// Import icons
-import { TrendingUp, Users, ClipboardList, Palette, Terminal, 
-  Smartphone, Gamepad, Piano, FileText, Mic, Heart, BarChart, Cloud, Type } from 'lucide-react';
-
 const features = [
   'Daily learning streaks to build consistency',
   'Visual progress tracking across all your skills',
