@@ -6,7 +6,30 @@ import HeroSection from '@/components/HeroSection';
 import GoalSetting from '@/components/GoalSetting';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Laptop, Presentation, Brush, Code, Music, Brain } from 'lucide-react';
+import { 
+  Laptop, 
+  Presentation, 
+  Brush, 
+  Code, 
+  Music, 
+  Brain,
+  TrendingUp, 
+  Users, 
+  ClipboardList, 
+  Palette, 
+  Terminal, 
+  Smartphone, 
+  Gamepad, 
+  Piano, 
+  FileText, 
+  Mic, 
+  Heart, 
+  BarChart, 
+  Cloud, 
+  Type,
+  Clock,
+  Play
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/use-toast';
 
