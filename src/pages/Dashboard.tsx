@@ -1,15 +1,12 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Plus, BookOpen, Award, Zap } from 'lucide-react';
-import SkillCard, { SkillCardProps } from '@/components/SkillCard';
-import LessonCard, { LessonCardProps } from '@/components/LessonCard';
-import ProgressChart from '@/components/ProgressChart';
-import DailyStreak from '@/components/DailyStreak';
-import Navbar from '@/components/Navbar';
+import { Zap, Award } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import Navbar from '@/components/Navbar';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardContent from '@/components/dashboard/DashboardContent';
+import { SkillCardProps } from '@/components/SkillCard';
+import { LessonCardProps } from '@/components/LessonCard';
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -36,140 +33,22 @@ const Dashboard = () => {
       
       <main className="flex-1 pt-24 pb-16">
         <div className="container px-4 mx-auto">
-          {/* Header */}
-          <header className="mb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div>
-                <h1 className="text-3xl font-bold">Welcome back, Alex</h1>
-                <p className="text-gray-500 mt-1">Continue your learning journey</p>
-              </div>
-              <div className="mt-4 md:mt-0">
-                <Button asChild>
-                  <Link to="/get-started">
-                    <Plus size={18} className="mr-2" />
-                    Add New Skill
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </header>
+          <DashboardHeader username="Alex" />
           
-          {/* Main content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left column - Skills and progress */}
-            <div className="lg:col-span-2 space-y-8">
-              <section>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold flex items-center">
-                    <BookOpen size={18} className="mr-2 text-primary" />
-                    Your Skills
-                  </h2>
-                  <Link to="/skills" className="text-sm text-primary hover:underline">
-                    View all
-                  </Link>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {loading ? (
-                    Array(2).fill(0).map((_, i) => (
-                      <div key={i} className="h-48 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
-                    ))
-                  ) : (
-                    userSkills.map((skill) => (
-                      <SkillCard key={skill.id} {...skill} />
-                    ))
-                  )}
-                </div>
-              </section>
-              
-              <section>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold flex items-center">
-                    <Zap size={18} className="mr-2 text-primary" />
-                    Today's Lessons
-                  </h2>
-                  <Link to="/explore" className="text-sm text-primary hover:underline">
-                    Explore more
-                  </Link>
-                </div>
-                
-                <Tabs defaultValue="recommended" className="w-full">
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="recommended">Recommended</TabsTrigger>
-                    <TabsTrigger value="new">New</TabsTrigger>
-                    <TabsTrigger value="saved">Saved</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="recommended" className="space-y-4">
-                    {loading ? (
-                      Array(2).fill(0).map((_, i) => (
-                        <div key={i} className="h-40 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
-                      ))
-                    ) : (
-                      todayLessons.map((lesson) => (
-                        <LessonCard key={lesson.id} {...lesson} />
-                      ))
-                    )}
-                  </TabsContent>
-                  
-                  <TabsContent value="new" className="space-y-4">
-                    {newLessons.map((lesson) => (
-                      <LessonCard key={lesson.id} {...lesson} />
-                    ))}
-                  </TabsContent>
-                  
-                  <TabsContent value="saved" className="space-y-4">
-                    {savedLessons.map((lesson) => (
-                      <LessonCard key={lesson.id} {...lesson} />
-                    ))}
-                  </TabsContent>
-                </Tabs>
-              </section>
-            </div>
-            
-            {/* Right column - Stats and achievements */}
-            <div className="space-y-8">
-              <ProgressChart data={progressData} />
-              
-              <DailyStreak 
-                streak={5}
-                longestStreak={14}
-                currentWeek={weekData}
-              />
-              
-              <section>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold flex items-center">
-                    <Award size={18} className="mr-2 text-primary" />
-                    Recent Achievements
-                  </h2>
-                </div>
-                
-                {loading ? (
-                  <div className="h-48 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
-                ) : (
-                  <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 p-4 shadow-sm">
-                    <div className="space-y-4">
-                      {achievements.map((achievement, index) => (
-                        <div 
-                          key={index}
-                          className="flex items-center p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"
-                        >
-                          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            {achievement.icon}
-                          </div>
-                          <div className="ml-3">
-                            <h3 className="font-medium">{achievement.title}</h3>
-                            <p className="text-sm text-gray-500">{achievement.description}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </section>
-            </div>
-          </div>
+          <DashboardContent 
+            loading={loading}
+            userSkills={userSkills}
+            todayLessons={todayLessons}
+            newLessons={newLessons}
+            savedLessons={savedLessons}
+            progressData={progressData}
+            streakData={{
+              streak: 5,
+              longestStreak: 14,
+              currentWeek: weekData
+            }}
+            achievements={achievements}
+          />
         </div>
       </main>
     </div>
