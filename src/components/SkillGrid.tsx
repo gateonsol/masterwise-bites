@@ -1,6 +1,7 @@
 
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { 
   Laptop, 
   Presentation, 
@@ -37,6 +38,8 @@ interface Skill {
 }
 
 const SkillGrid = ({ category, onStart }: SkillGridProps) => {
+  const navigate = useNavigate();
+  
   // Different skill examples for each category
   const getSkills = (category: string): Skill[] => {
     switch (category) {
@@ -90,8 +93,13 @@ const SkillGrid = ({ category, onStart }: SkillGridProps) => {
   const skills = getSkills(category);
   
   const handleStartLearning = (skillName: string) => {
-    // Pass the skill name to the parent component
+    // Save the selected skill name to localStorage
     localStorage.setItem('selectedSkill', skillName);
+    
+    // Navigate to the personalized lessons page for this skill
+    navigate(`/skills/${encodeURIComponent(skillName)}/lessons`);
+    
+    // Also call the original onStart function to maintain backward compatibility
     onStart();
   };
   

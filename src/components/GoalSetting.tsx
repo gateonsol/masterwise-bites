@@ -58,6 +58,14 @@ const GoalSetting = ({ onComplete, initialSkill = '' }: GoalSettingProps) => {
       
       // Save goal data
       onComplete(goalData);
+      
+      // Navigate to the skill lessons page
+      navigate(`/skills/${encodeURIComponent(skill)}/lessons`);
+      
+      toast({
+        title: "Learning path created!",
+        description: `Your personalized learning path for ${skill} has been created.`,
+      });
     }
   };
   

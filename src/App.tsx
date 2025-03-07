@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import SkillDetails from "./pages/SkillDetails";
 import LessonPage from "./pages/LessonPage";
+import SkillLessons from "./pages/SkillLessons";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/explore" element={<Dashboard />} />
               <Route path="/skill/:id" element={<SkillDetails />} />
               <Route path="/lesson/:id" element={<LessonPage />} />
+              <Route path="/skills/:skill/lessons" element={<SkillLessons />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
