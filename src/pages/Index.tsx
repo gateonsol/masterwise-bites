@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
@@ -12,8 +12,18 @@ import { GoalData } from '@/components/goal-setting/types';
 
 const Index = () => {
   const [showGoalSetting, setShowGoalSetting] = useState(false);
+  const [preselectedSkill, setPreselectedSkill] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  useEffect(() => {
+    // Check if a skill was selected from the grid
+    const selectedSkill = localStorage.getItem('selectedSkill');
+    if (selectedSkill) {
+      setPreselectedSkill(selectedSkill);
+      localStorage.removeItem('selectedSkill');
+    }
+  }, []);
   
   const handleGoalComplete = (data: GoalData) => {
     toast({
@@ -27,6 +37,10 @@ const Index = () => {
     }, 1500);
   };
   
+  const handleStartLearning = () => {
+    setShowGoalSetting(true);
+  };
+  
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -34,9 +48,9 @@ const Index = () => {
       {!showGoalSetting ? (
         <>
           <HeroSection />
-          <CategoriesSection onStartLearning={() => setShowGoalSetting(true)} />
+          <CategoriesSection onStartLearning={handleStartLearning} />
           <FeaturesSection />
-          <CallToActionSection onStartLearning={() => setShowGoalSetting(true)} />
+          <CallToActionSection onStartLearning={handleStartLearning} />
         </>
       ) : (
         <div className="pt-32 pb-20 min-h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-900 dark:to-gray-900">
@@ -48,7 +62,10 @@ const Index = () => {
               </p>
             </div>
             
-            <GoalSetting onComplete={handleGoalComplete} />
+            <GoalSetting 
+              onComplete={handleGoalComplete} 
+              initialSkill={preselectedSkill}
+            />
             
             <div className="mt-6 text-center">
               <button 

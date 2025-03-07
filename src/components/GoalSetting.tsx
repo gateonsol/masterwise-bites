@@ -1,23 +1,35 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 import StepIndicator from './goal-setting/StepIndicator';
 import SkillStep from './goal-setting/SkillStep';
 import TimeframeStep from './goal-setting/TimeframeStep';
 import LevelStep from './goal-setting/LevelStep';
 import StepNavigation from './goal-setting/StepNavigation';
 import { GoalData, SkillLevel } from './goal-setting/types';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface GoalSettingProps {
   onComplete: (data: GoalData) => void;
+  initialSkill?: string;
 }
 
-const GoalSetting = ({ onComplete }: GoalSettingProps) => {
+const GoalSetting = ({ onComplete, initialSkill = '' }: GoalSettingProps) => {
   const [step, setStep] = useState(1);
-  const [skill, setSkill] = useState('');
+  const [skill, setSkill] = useState(initialSkill);
   const [timeframe, setTimeframe] = useState(30); // days
   const [level, setLevel] = useState<SkillLevel>('beginner');
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  // Update skill if initialSkill changes
+  useEffect(() => {
+    if (initialSkill) {
+      setSkill(initialSkill);
+    }
+  }, [initialSkill]);
   
   const handleSubmit = () => {
     if (step === 1 && !skill.trim()) {
@@ -32,11 +44,20 @@ const GoalSetting = ({ onComplete }: GoalSettingProps) => {
     if (step < 3) {
       setStep(step + 1);
     } else {
-      onComplete({ skill, timeframe, level });
-      toast({
-        title: "Goal set successfully!",
-        description: "Your personalized learning path is being created.",
-      });
+      // Check if user is authenticated
+      if (!user) {
+        toast({
+          title: "Login required",
+          description: "Please sign in or create an account to save your learning goal",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      const goalData = { skill, timeframe, level };
+      
+      // Save goal data
+      onComplete(goalData);
     }
   };
   

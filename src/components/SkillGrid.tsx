@@ -89,6 +89,12 @@ const SkillGrid = ({ category, onStart }: SkillGridProps) => {
   
   const skills = getSkills(category);
   
+  const handleStartLearning = (skillName: string) => {
+    // Pass the skill name to the parent component
+    localStorage.setItem('selectedSkill', skillName);
+    onStart();
+  };
+  
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
       {skills.map((skill, index) => (
@@ -102,7 +108,7 @@ const SkillGrid = ({ category, onStart }: SkillGridProps) => {
             </div>
             <h3 className="text-lg font-semibold mb-2">{skill.name}</h3>
             <p className="text-gray-500 text-sm mb-4">Master essential skills with bite-sized daily lessons</p>
-            <Button variant="outline" size="sm" onClick={onStart}>
+            <Button variant="outline" size="sm" onClick={() => handleStartLearning(skill.name)}>
               Start Learning
             </Button>
           </div>

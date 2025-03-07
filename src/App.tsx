@@ -10,6 +10,8 @@ import RequireAuth from "@/components/auth/RequireAuth";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import SkillDetails from "./pages/SkillDetails";
+import LessonPage from "./pages/LessonPage";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,8 @@ const App = () => (
               />
               <Route path="/get-started" element={<Index />} />
               <Route path="/explore" element={<Dashboard />} />
+              <Route path="/skill/:id" element={<SkillDetails />} />
+              <Route path="/lesson/:id" element={<LessonPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
