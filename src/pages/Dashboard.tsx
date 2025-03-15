@@ -20,6 +20,27 @@ const Dashboard = () => {
   const [newLessons, setNewLessons] = useState<LessonCardProps[]>([]);
   const [savedLessons, setSavedLessons] = useState<LessonCardProps[]>([]);
   
+  // Get user's name from user metadata or use a default
+  const getUserName = () => {
+    if (!user) return "Learner";
+    
+    // Try to get name from user metadata first
+    const userMetadata = user.user_metadata;
+    if (userMetadata && userMetadata.full_name) {
+      return userMetadata.full_name;
+    }
+    
+    // If no name in metadata, try to get from email
+    if (user.email) {
+      // Extract name part from email (everything before @)
+      const emailName = user.email.split('@')[0];
+      // Capitalize first letter
+      return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+    }
+    
+    return "Learner";
+  };
+  
   useEffect(() => {
     // Simulate data loading and fetch user data
     const fetchUserData = async () => {
@@ -95,8 +116,9 @@ const Dashboard = () => {
         setSavedLessons(bookmarkedLessons.length > 0 ? bookmarkedLessons : lessonCards.slice(6, 9));
         
         // Show welcome toast
+        const userName = getUserName();
         toast({
-          title: `Welcome back${user?.displayName ? `, ${user.displayName}` : ""}!`,
+          title: `Welcome back${userName ? `, ${userName}` : ""}!`,
           description: "You have lessons waiting for you today.",
         });
       } catch (error) {
@@ -158,7 +180,7 @@ const Dashboard = () => {
       
       <main className="flex-1 pt-24 pb-16">
         <div className="container px-4 mx-auto">
-          <DashboardHeader username={user?.displayName || "Learner"} />
+          <DashboardHeader username={getUserName()} />
           
           <DashboardContent 
             loading={loading}

@@ -1,4 +1,3 @@
-
 // Type definitions for the learning platform
 
 // Lesson content type
@@ -11,6 +10,7 @@ export interface LessonContent {
   type: 'video' | 'article' | 'podcast' | 'interactive';
   source: string;
   sourceUrl: string;
+  completed?: boolean; // Added this property to fix the TypeScript error
 }
 
 // Skill category type

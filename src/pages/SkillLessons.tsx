@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useToast } from '@/components/ui/use-toast';
@@ -33,8 +32,8 @@ const SkillLessons = () => {
           // Get lessons for the skill
           const skillLessons = getLessonsForSkill(skill);
           
-          // Transform to LessonCardProps format
-          const lessonCards = skillLessons.map(lesson => {
+          // Transform LessonContent to include completed property
+          const enhancedLessons = skillLessons.map(lesson => {
             // Check if this lesson is completed
             const isCompleted = localStorage.getItem(`lesson_progress_${lesson.id}`) === "100";
             return {
@@ -43,13 +42,13 @@ const SkillLessons = () => {
             };
           });
           
-          setLessons(lessonCards);
+          setLessons(enhancedLessons);
           
           // Calculate stats
-          const completed = lessonCards.filter(lesson => lesson.completed).length;
+          const completed = enhancedLessons.filter(lesson => lesson.completed).length;
           setCompletedLessons(completed);
           
-          const totalMinutes = lessonCards.reduce((sum, lesson) => sum + lesson.duration, 0);
+          const totalMinutes = enhancedLessons.reduce((sum, lesson) => sum + lesson.duration, 0);
           setTotalLearningTime(totalMinutes);
         }
       } catch (error) {
@@ -172,7 +171,7 @@ const SkillLessons = () => {
                           description={lesson.description}
                           duration={lesson.duration}
                           type={lesson.type as 'video' | 'article' | 'podcast'}
-                          completed={lesson.completed}
+                          completed={lesson.completed || false}
                           thumbnailUrl=""
                         />
                       ))}
@@ -198,7 +197,7 @@ const SkillLessons = () => {
                             description={lesson.description}
                             duration={lesson.duration}
                             type={lesson.type as 'video' | 'article' | 'podcast'}
-                            completed={lesson.completed}
+                            completed={lesson.completed || false}
                             thumbnailUrl=""
                           />
                         ))}
@@ -226,7 +225,7 @@ const SkillLessons = () => {
                             description={lesson.description}
                             duration={lesson.duration}
                             type={lesson.type as 'video' | 'article' | 'podcast'}
-                            completed={lesson.completed}
+                            completed={lesson.completed || false}
                             thumbnailUrl=""
                           />
                         ))}
