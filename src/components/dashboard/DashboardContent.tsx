@@ -5,6 +5,7 @@ import StatsColumn from './StatsColumn';
 import { SkillCardProps } from '@/components/SkillCard';
 import { LessonCardProps } from '@/components/LessonCard';
 import { ReactNode } from 'react';
+import RecommendedPathway from '@/components/RecommendedPathway';
 
 interface DashboardContentProps {
   loading: boolean;
@@ -58,6 +59,8 @@ const DashboardContent = ({
           savedLessons={savedLessons}
           loading={loading}
         />
+        
+        <RecommendedPathway />
       </div>
       
       {/* Right column - Stats and achievements */}
