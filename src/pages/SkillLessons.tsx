@@ -21,6 +21,7 @@ const SkillLessons = () => {
   const [lessons, setLessons] = useState<LessonContent[]>([]);
   const [completedLessons, setCompletedLessons] = useState(0);
   const [totalLearningTime, setTotalLearningTime] = useState(0);
+  const [startDate, setStartDate] = useState<string | undefined>(undefined);
   
   useEffect(() => {
     // Fetch personalized lessons for the skill
@@ -30,6 +31,14 @@ const SkillLessons = () => {
         if (skill) {
           // Get lessons for the skill
           const skillLessons = getLessonsForSkill(skill);
+          
+          // Check if user has this skill in their list
+          const userSkills = JSON.parse(localStorage.getItem('user_skills') || '[]');
+          const userSkill = userSkills.find((s: any) => s.name === skill);
+          
+          if (userSkill) {
+            setStartDate(userSkill.startDate);
+          }
           
           // Transform LessonContent to include completed property
           const enhancedLessons = skillLessons.map(lesson => {
@@ -88,8 +97,20 @@ const SkillLessons = () => {
     .filter(lesson => lesson.completed)
     .reduce((sum, lesson) => sum + lesson.duration, 0);
 
-  // Define related skills for sidebar
-  const relatedSkills = ['Python', 'Web Development', 'Data Structures', 'Algorithms'];
+  // Define related skills based on the current skill category
+  const getRelatedSkills = (currentSkill: string) => {
+    // Map of skills to their related skills
+    const skillCategories: Record<string, string[]> = {
+      'JavaScript': ['TypeScript', 'React', 'Node.js', 'Web Development'],
+      'Python': ['Data Science', 'Machine Learning', 'Django', 'Flask'],
+      'Data Structures': ['Algorithms', 'Python', 'Java', 'Computer Science'],
+      'React': ['JavaScript', 'TypeScript', 'Redux', 'Web Development'],
+      // Add more mappings as needed
+    };
+    
+    // Return related skills or a default set
+    return skillCategories[currentSkill] || ['Python', 'JavaScript', 'Data Structures', 'Algorithms'];
+  };
 
   return (
     <>
@@ -108,6 +129,7 @@ const SkillLessons = () => {
               remainingTime={remainingTime}
               completedLessons={completedLessons}
               totalLessons={lessons.length}
+              startDate={startDate}
             />
             
             <div className="space-y-4">
@@ -129,7 +151,7 @@ const SkillLessons = () => {
             completedLessons={completedLessons}
             completedLearningTime={completedLearningTime}
             totalLessons={lessons.length}
-            relatedSkills={relatedSkills}
+            relatedSkills={getRelatedSkills(skill)}
           />
         </div>
       </div>

@@ -10,16 +10,18 @@ const UserProgressSummary = () => {
   });
   
   useEffect(() => {
-    // In a real app, this would come from an API
-    // For this demo, we'll generate or use localStorage
+    // Get real data from localStorage
     const streak = parseInt(localStorage.getItem('current_streak') || '0');
     const totalLessons = parseInt(localStorage.getItem('total_completed_lessons') || '0');
-    const randomMinutes = Math.floor(Math.random() * 40) + 5; // 5-45 minutes
+    
+    // Get today's activity
+    const today = new Date().toISOString().split('T')[0];
+    const todayMinutes = parseInt(localStorage.getItem(`activity_minutes_${today}`) || '0');
     
     setStats({
-      streak: streak || Math.floor(Math.random() * 10) + 1,
-      todayMinutes: randomMinutes,
-      totalLessons: totalLessons || Math.floor(Math.random() * 20) + 1
+      streak,
+      todayMinutes,
+      totalLessons
     });
   }, []);
   

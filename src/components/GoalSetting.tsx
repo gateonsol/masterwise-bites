@@ -9,6 +9,7 @@ import LevelStep from './goal-setting/LevelStep';
 import StepNavigation from './goal-setting/StepNavigation';
 import { GoalData, SkillLevel } from './goal-setting/types';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/lib/supabase';
 
 interface GoalSettingProps {
   onComplete: (data: GoalData) => void;
@@ -31,7 +32,7 @@ const GoalSetting = ({ onComplete, initialSkill = '' }: GoalSettingProps) => {
     }
   }, [initialSkill]);
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (step === 1 && !skill.trim()) {
       toast({
         title: "Skill is required",
@@ -56,16 +57,58 @@ const GoalSetting = ({ onComplete, initialSkill = '' }: GoalSettingProps) => {
       
       const goalData = { skill, timeframe, level };
       
-      // Save goal data
-      onComplete(goalData);
-      
-      // Navigate to the skill lessons page
-      navigate(`/skills/${encodeURIComponent(skill)}/lessons`);
-      
-      toast({
-        title: "Learning path created!",
-        description: `Your personalized learning path for ${skill} has been created.`,
-      });
+      try {
+        // Save user skill to localStorage to persist across sessions
+        const existingSkills = JSON.parse(localStorage.getItem('user_skills') || '[]');
+        
+        // Check if this skill already exists
+        const skillExists = existingSkills.some((s: any) => s.name === skill);
+        
+        if (!skillExists) {
+          // Create a new skill entry
+          const newSkill = {
+            id: `skill-${Date.now()}`,
+            name: skill,
+            level: level,
+            progress: 0,
+            streak: 0,
+            estimatedTimeLeft: `${timeframe} days`,
+            badgesEarned: 0,
+            totalBadges: 10,
+            todayLessonCompleted: false,
+            startDate: new Date().toISOString().split('T')[0]
+          };
+          
+          // Add to existing skills
+          const updatedSkills = [...existingSkills, newSkill];
+          localStorage.setItem('user_skills', JSON.stringify(updatedSkills));
+          
+          // Save goal data
+          onComplete(goalData);
+          
+          // Navigate to the skill lessons page
+          navigate(`/skills/${encodeURIComponent(skill)}/lessons`);
+          
+          toast({
+            title: "Learning path created!",
+            description: `Your personalized learning path for ${skill} has been created.`,
+          });
+        } else {
+          // Skill already exists, just navigate to it
+          toast({
+            title: "Learning path exists",
+            description: `You're already learning ${skill}. Redirecting to your existing path.`,
+          });
+          navigate(`/skills/${encodeURIComponent(skill)}/lessons`);
+        }
+      } catch (error) {
+        console.error("Error saving skill:", error);
+        toast({
+          title: "Error saving skill",
+          description: "There was a problem saving your learning goal.",
+          variant: "destructive",
+        });
+      }
     }
   };
   

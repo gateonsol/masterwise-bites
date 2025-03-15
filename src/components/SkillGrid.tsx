@@ -26,6 +26,7 @@ import {
   Clock,
   Play
 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 
 interface SkillGridProps {
   category: string;
@@ -39,6 +40,7 @@ interface Skill {
 
 const SkillGrid = ({ category, onStart }: SkillGridProps) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   // Different skill examples for each category
   const getSkills = (category: string): Skill[] => {
@@ -93,14 +95,23 @@ const SkillGrid = ({ category, onStart }: SkillGridProps) => {
   const skills = getSkills(category);
   
   const handleStartLearning = (skillName: string) => {
-    // Save the selected skill name to localStorage
-    localStorage.setItem('selectedSkill', skillName);
+    // Check if user already has this skill
+    const userSkills = JSON.parse(localStorage.getItem('user_skills') || '[]');
+    const existingSkill = userSkills.find((skill: any) => skill.name === skillName);
     
-    // Navigate to the personalized lessons page for this skill
-    navigate(`/skills/${encodeURIComponent(skillName)}/lessons`);
-    
-    // Also call the original onStart function to maintain backward compatibility
-    onStart();
+    if (existingSkill) {
+      // If skill exists, navigate directly to its lesson page
+      navigate(`/skills/${encodeURIComponent(skillName)}/lessons`);
+      toast({
+        title: "Continuing your learning",
+        description: `Resuming your progress with ${skillName}`,
+      });
+    } else {
+      // If it's a new skill, go to goal setting
+      localStorage.setItem('selectedSkill', skillName);
+      navigate(`/get-started?skill=${encodeURIComponent(skillName)}`);
+      onStart();
+    }
   };
   
   return (

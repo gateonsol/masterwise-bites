@@ -9,6 +9,7 @@ interface LearningProgressProps {
   remainingTime: number;
   completedLessons: number;
   totalLessons: number;
+  startDate?: string;
 }
 
 const LearningProgress = ({
@@ -17,6 +18,7 @@ const LearningProgress = ({
   remainingTime,
   completedLessons,
   totalLessons,
+  startDate,
 }: LearningProgressProps) => {
   return (
     <div className="bg-white dark:bg-gray-900 rounded-xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 mb-6">
@@ -27,7 +29,7 @@ const LearningProgress = ({
         </div>
         <Badge variant="outline" className="text-blue-500 bg-blue-50 dark:bg-blue-900/20 flex items-center">
           <Calendar className="mr-1 h-4 w-4" /> 
-          30 days plan
+          {startDate ? `Started on ${startDate}` : '30 days plan'}
         </Badge>
       </div>
       
