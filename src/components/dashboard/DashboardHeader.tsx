@@ -14,7 +14,7 @@ const DashboardHeader = ({ username, onAddSkill }: DashboardHeaderProps) => {
       <div className="flex flex-wrap justify-between items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">Welcome back, {username}</h1>
-          <p className="text-gray-500 mt-1">Track your progress and continue learning</p>
+          <p className="text-gray-500 mt-1">Track your progress and continue your personal learning journey</p>
         </div>
         
         <Button onClick={onAddSkill} className="inline-flex items-center">

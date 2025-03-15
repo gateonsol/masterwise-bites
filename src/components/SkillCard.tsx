@@ -41,9 +41,12 @@ const SkillCard = ({
     }
   };
 
+  // Use the correct URL format for skills
+  const skillUrl = `/skills/${encodeURIComponent(name)}/lessons`;
+
   return (
     <Link 
-      to={`/skill/${id}`}
+      to={skillUrl}
       className={cn(
         "block relative p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden transition-all duration-300",
         isHovered ? "shadow-md transform -translate-y-1" : "shadow-sm"

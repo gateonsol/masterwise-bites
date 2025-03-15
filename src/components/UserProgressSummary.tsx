@@ -10,33 +10,45 @@ const UserProgressSummary = () => {
   });
   
   useEffect(() => {
-    // Get real data from localStorage
-    const streak = parseInt(localStorage.getItem('current_streak') || '0');
-    const totalLessons = parseInt(localStorage.getItem('total_completed_lessons') || '0');
-    
-    // Get today's activity
-    const today = new Date().toISOString().split('T')[0];
-    const todayMinutes = parseInt(localStorage.getItem(`activity_minutes_${today}`) || '0');
-    
-    // Create interval to update stats every minute (to show real-time progress)
-    const interval = setInterval(() => {
-      const currentStreak = parseInt(localStorage.getItem('current_streak') || '0');
-      const currentCompleted = parseInt(localStorage.getItem('total_completed_lessons') || '0');
-      const currentMinutes = parseInt(localStorage.getItem(`activity_minutes_${today}`) || '0');
+    // Function to get current user stats
+    const getUserStats = () => {
+      // Get streak from localStorage
+      const streak = parseInt(localStorage.getItem('current_streak') || '0');
       
-      setStats({
-        streak: currentStreak,
-        todayMinutes: currentMinutes,
-        totalLessons: currentCompleted
+      // Get total completed lessons
+      const userSkills = JSON.parse(localStorage.getItem('user_skills') || '[]');
+      let totalCompleted = 0;
+      
+      userSkills.forEach((skill: any) => {
+        // Get lesson progress for this skill
+        const skillLessons = Object.keys(localStorage)
+          .filter(key => key.startsWith(`lesson_progress_`) && key.includes(skill.id));
+        
+        const completedLessons = skillLessons.filter(
+          key => localStorage.getItem(key) === "100"
+        ).length;
+        
+        totalCompleted += completedLessons;
       });
-    }, 60000); // Update every minute
+      
+      // Get today's activity minutes
+      const today = new Date().toISOString().split('T')[0];
+      const todayMinutes = parseInt(localStorage.getItem(`activity_minutes_${today}`) || '0');
+      
+      return {
+        streak,
+        todayMinutes,
+        totalLessons: totalCompleted
+      };
+    };
     
     // Initial update
-    setStats({
-      streak,
-      todayMinutes,
-      totalLessons
-    });
+    setStats(getUserStats());
+    
+    // Create interval to update stats every minute
+    const interval = setInterval(() => {
+      setStats(getUserStats());
+    }, 60000); // Update every minute
     
     return () => clearInterval(interval);
   }, []);

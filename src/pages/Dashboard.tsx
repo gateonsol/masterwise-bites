@@ -72,27 +72,31 @@ const Dashboard = () => {
         if (skills.length > 0) {
           // For each skill, get its lessons
           for (const skill of skills) {
-            const skillLessons = getLessonsForSkill(skill.name);
-            
-            // Convert to LessonCardProps
-            const lessonCards = skillLessons.map(lesson => {
-              // Check if this lesson is completed or bookmarked
-              const isCompleted = localStorage.getItem(`lesson_progress_${lesson.id}`) === "100";
-              const isBookmarked = localStorage.getItem(`lesson_bookmarked_${lesson.id}`) === "true";
+            try {
+              const skillLessons = getLessonsForSkill(skill.name);
               
-              return {
-                id: lesson.id,
-                title: lesson.title,
-                description: lesson.description,
-                duration: lesson.duration,
-                type: lesson.type as 'video' | 'article' | 'podcast',
-                completed: isCompleted,
-                thumbnailUrl: "",
-                skillName: skill.name
-              };
-            });
-            
-            allLessons.push(...lessonCards);
+              // Convert to LessonCardProps
+              const lessonCards = skillLessons.map(lesson => {
+                // Check if this lesson is completed or bookmarked
+                const isCompleted = localStorage.getItem(`lesson_progress_${lesson.id}`) === "100";
+                const isBookmarked = localStorage.getItem(`lesson_bookmarked_${lesson.id}`) === "true";
+                
+                return {
+                  id: lesson.id,
+                  title: lesson.title,
+                  description: lesson.description,
+                  duration: lesson.duration,
+                  type: lesson.type as 'video' | 'article' | 'podcast',
+                  completed: isCompleted,
+                  thumbnailUrl: "",
+                  skillName: skill.name
+                };
+              });
+              
+              allLessons.push(...lessonCards);
+            } catch (error) {
+              console.error(`Error loading lessons for skill ${skill.name}:`, error);
+            }
           }
           
           // Divide lessons into categories
@@ -167,7 +171,7 @@ const Dashboard = () => {
   const getUserActivity = () => {
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     
-    // Look for real user activity in localStorage
+    // Get real user activity from localStorage
     const activityData = days.map(day => {
       // Get today's day of week (0 = Sunday, 1 = Monday, etc.)
       const today = new Date().getDay();
@@ -184,7 +188,7 @@ const Dashboard = () => {
       // Check if we have activity logged for this date
       const hasActivity = localStorage.getItem(`activity_${dateStr}`) === 'true';
       
-      // Get actual minutes if available, otherwise 0
+      // Get actual minutes and lessons if available, otherwise 0
       const minutes = hasActivity ? parseInt(localStorage.getItem(`activity_minutes_${dateStr}`) || '0') : 0;
       const lessons = hasActivity ? parseInt(localStorage.getItem(`activity_lessons_${dateStr}`) || '0') : 0;
       
@@ -249,6 +253,7 @@ const Dashboard = () => {
             progressData={getUserActivity()}
             streakData={getStreakData()}
             achievements={[]}
+            onAddSkill={handleAddNewSkill}
           />
         </div>
       </main>

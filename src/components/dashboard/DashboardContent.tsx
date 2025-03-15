@@ -32,6 +32,7 @@ interface DashboardContentProps {
     title: string;
     description: string;
   }>;
+  onAddSkill: () => void;
 }
 
 const DashboardContent = ({
@@ -42,7 +43,8 @@ const DashboardContent = ({
   savedLessons,
   progressData,
   streakData,
-  achievements
+  achievements,
+  onAddSkill
 }: DashboardContentProps) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -50,7 +52,8 @@ const DashboardContent = ({
       <div className="lg:col-span-2 space-y-8">
         <SkillsSection 
           skills={userSkills} 
-          loading={loading} 
+          loading={loading}
+          onAddSkill={onAddSkill}
         />
         
         <LessonsSection 
