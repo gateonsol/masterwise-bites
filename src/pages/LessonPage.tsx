@@ -1,10 +1,11 @@
+
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronRight, ChevronLeft, Clock, CheckCircle2, Bookmark, ExternalLink } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/components/ui/use-toast';
 import { useEffect, useState } from 'react';
-import { getLessonById } from '@/utils/lessonContentService';
+import { getLessonById, getLessonsForSkill } from '@/utils/lessonContentService';
 import { LessonContent } from '@/utils/types';
 import { Skeleton } from '@/components/ui/skeleton';
 import Navbar from '@/components/Navbar';
