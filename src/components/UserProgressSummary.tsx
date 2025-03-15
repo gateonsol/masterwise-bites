@@ -18,11 +18,27 @@ const UserProgressSummary = () => {
     const today = new Date().toISOString().split('T')[0];
     const todayMinutes = parseInt(localStorage.getItem(`activity_minutes_${today}`) || '0');
     
+    // Create interval to update stats every minute (to show real-time progress)
+    const interval = setInterval(() => {
+      const currentStreak = parseInt(localStorage.getItem('current_streak') || '0');
+      const currentCompleted = parseInt(localStorage.getItem('total_completed_lessons') || '0');
+      const currentMinutes = parseInt(localStorage.getItem(`activity_minutes_${today}`) || '0');
+      
+      setStats({
+        streak: currentStreak,
+        todayMinutes: currentMinutes,
+        totalLessons: currentCompleted
+      });
+    }, 60000); // Update every minute
+    
+    // Initial update
     setStats({
       streak,
       todayMinutes,
       totalLessons
     });
+    
+    return () => clearInterval(interval);
   }, []);
   
   return (

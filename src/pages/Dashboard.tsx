@@ -8,6 +8,7 @@ import { SkillCardProps } from '@/components/SkillCard';
 import { LessonCardProps } from '@/components/LessonCard';
 import { useAuth } from '@/contexts/AuthContext';
 import { getLessonsForSkill } from '@/utils/lessonContentService';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { toast } = useToast();
@@ -17,6 +18,7 @@ const Dashboard = () => {
   const [todayLessons, setTodayLessons] = useState<LessonCardProps[]>([]);
   const [newLessons, setNewLessons] = useState<LessonCardProps[]>([]);
   const [savedLessons, setSavedLessons] = useState<LessonCardProps[]>([]);
+  const navigate = useNavigate();
   
   // Get user's name from user metadata or use a default
   const getUserName = () => {
@@ -51,6 +53,15 @@ const Dashboard = () => {
         
         if (savedSkills) {
           skills = JSON.parse(savedSkills);
+          // Add proper status for "today" based on current date
+          const today = new Date().toISOString().split('T')[0];
+          skills = skills.map(skill => {
+            const completed = localStorage.getItem(`skill_completed_${skill.id}_${today}`) === 'true';
+            return {
+              ...skill,
+              todayLessonCompleted: completed
+            };
+          });
         }
         
         setUserSkills(skills);
@@ -76,7 +87,8 @@ const Dashboard = () => {
                 duration: lesson.duration,
                 type: lesson.type as 'video' | 'article' | 'podcast',
                 completed: isCompleted,
-                thumbnailUrl: ""
+                thumbnailUrl: "",
+                skillName: skill.name
               };
             });
             
@@ -84,26 +96,43 @@ const Dashboard = () => {
           }
           
           // Divide lessons into categories
-          // Today's lessons (first 3 uncompleted lessons)
-          setTodayLessons(
-            allLessons
-              .filter(lesson => !lesson.completed)
-              .slice(0, 3)
-          );
+          // Today's lessons (first uncompleted lesson from each skill)
+          const skillMap = new Map<string, LessonCardProps[]>();
           
-          // New lessons (next 3 uncompleted lessons)
-          setNewLessons(
-            allLessons
-              .filter(lesson => !lesson.completed)
-              .slice(3, 6)
-          );
+          // Group lessons by skill
+          allLessons.forEach(lesson => {
+            if (!skillMap.has(lesson.skillName)) {
+              skillMap.set(lesson.skillName, []);
+            }
+            skillMap.get(lesson.skillName)?.push(lesson);
+          });
+          
+          // Get first uncompleted lesson from each skill
+          const todaysLessons: LessonCardProps[] = [];
+          
+          skillMap.forEach(lessons => {
+            const firstUncompleted = lessons.find(l => !l.completed);
+            if (firstUncompleted) {
+              todaysLessons.push(firstUncompleted);
+            }
+          });
+          
+          setTodayLessons(todaysLessons);
+          
+          // New lessons (next uncompleted lessons not in today's)
+          const todayIds = new Set(todaysLessons.map(l => l.id));
+          const newLessonsList = allLessons
+            .filter(lesson => !lesson.completed && !todayIds.has(lesson.id))
+            .slice(0, 5);
+          
+          setNewLessons(newLessonsList);
           
           // Get bookmarked lessons
           const bookmarkedLessons = allLessons.filter(lesson => 
             localStorage.getItem(`lesson_bookmarked_${lesson.id}`) === "true"
           );
           
-          setSavedLessons(bookmarkedLessons.length > 0 ? bookmarkedLessons : allLessons.slice(6, 9));
+          setSavedLessons(bookmarkedLessons);
         } else {
           // No skills yet, empty arrays
           setTodayLessons([]);
@@ -156,8 +185,8 @@ const Dashboard = () => {
       const hasActivity = localStorage.getItem(`activity_${dateStr}`) === 'true';
       
       // Get actual minutes if available, otherwise 0
-      const minutes = hasActivity ? parseInt(localStorage.getItem(`activity_minutes_${dateStr}`) || '20') : 0;
-      const lessons = hasActivity ? parseInt(localStorage.getItem(`activity_lessons_${dateStr}`) || '1') : 0;
+      const minutes = hasActivity ? parseInt(localStorage.getItem(`activity_minutes_${dateStr}`) || '0') : 0;
+      const lessons = hasActivity ? parseInt(localStorage.getItem(`activity_lessons_${dateStr}`) || '0') : 0;
       
       return { name: day, minutes, lessons };
     });
@@ -196,13 +225,20 @@ const Dashboard = () => {
     };
   };
   
+  const handleAddNewSkill = () => {
+    navigate('/get-started');
+  };
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
       <main className="flex-1 pt-24 pb-16">
         <div className="container px-4 mx-auto">
-          <DashboardHeader username={getUserName()} />
+          <DashboardHeader 
+            username={getUserName()} 
+            onAddSkill={handleAddNewSkill} 
+          />
           
           <DashboardContent 
             loading={loading}

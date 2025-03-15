@@ -18,6 +18,7 @@ const LessonPage = () => {
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
+  const [skillName, setSkillName] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchLesson = async () => {
@@ -27,6 +28,11 @@ const LessonPage = () => {
           const lesson = getLessonById(id);
           if (lesson) {
             setLessonData(lesson);
+            
+            // Extract skill name from the lesson ID (format: skillname-lessonid)
+            const skillPrefix = id.split('-')[0];
+            setSkillName(skillPrefix);
+            
             const savedProgress = localStorage.getItem(`lesson_progress_${id}`);
             setProgress(savedProgress ? parseInt(savedProgress) : 0);
             
@@ -55,18 +61,17 @@ const LessonPage = () => {
     
     fetchLesson();
     
+    // Auto-progress every 2 minutes if still less than 100%
     const progressInterval = setInterval(() => {
-      if (progress < 100) {
-        setProgress(prev => {
-          const newProgress = Math.min(prev + 5, 100);
-          localStorage.setItem(`lesson_progress_${id}`, newProgress.toString());
-          return newProgress;
-        });
+      if (progress < 100 && !loading && lessonData) {
+        const newProgress = Math.min(progress + 10, 100);
+        setProgress(newProgress);
+        localStorage.setItem(`lesson_progress_${id}`, newProgress.toString());
       }
-    }, 10000);
+    }, 120000); // 2 minutes instead of 10 seconds for a more realistic pace
     
     return () => clearInterval(progressInterval);
-  }, [id, toast, navigate, progress]);
+  }, [id, toast, navigate, loading, lessonData]);
   
   const handleCompleteLesson = () => {
     setProgress(100);
@@ -78,12 +83,17 @@ const LessonPage = () => {
     const today = new Date().toISOString().split('T')[0];
     localStorage.setItem(`activity_${today}`, 'true');
     
+    const currentLessons = parseInt(localStorage.getItem(`activity_lessons_${today}`) || '0') + 1;
+    localStorage.setItem(`activity_lessons_${today}`, currentLessons.toString());
+    
     const currentMinutes = parseInt(localStorage.getItem(`activity_minutes_${today}`) || '0');
     localStorage.setItem(`activity_minutes_${today}`, (currentMinutes + (lessonData?.duration || 10)).toString());
     
     updateStreak();
     
-    updateSkillProgress();
+    if (skillName) {
+      updateSkillProgress(skillName);
+    }
     
     toast({
       title: "Lesson completed!",
@@ -116,10 +126,8 @@ const LessonPage = () => {
     }
   };
   
-  const updateSkillProgress = () => {
-    if (!lessonData) return;
-    
-    const skillName = lessonData.id.split('-')[0];
+  const updateSkillProgress = (skillName: string) => {
+    if (!id) return;
     
     const userSkills = JSON.parse(localStorage.getItem('user_skills') || '[]');
     const updatedSkills = userSkills.map((skill: any) => {
@@ -134,6 +142,10 @@ const LessonPage = () => {
         });
         
         const newProgress = Math.round((completedCount / skillLessons.length) * 100);
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Mark that the user completed a lesson for this skill today
+        localStorage.setItem(`skill_completed_${skill.id}_${today}`, 'true');
         
         return {
           ...skill,
@@ -160,34 +172,45 @@ const LessonPage = () => {
   };
   
   const getAdjacentLessons = () => {
-    if (!lessonData || !id) return { prevLessonId: null, nextLessonId: null };
+    if (!lessonData || !id || !skillName) return { prevLessonId: null, nextLessonId: null };
     
-    const parts = id.split('-');
-    const skillPrefix = parts[0];
+    const skillLessons = getLessonsForSkill(skillName);
+    const sortedLessons = skillLessons.sort((a, b) => 
+      a.id.localeCompare(b.id)
+    );
     
-    const allLessons = Object.values(localStorage)
-      .filter(key => key.startsWith(`lesson_${skillPrefix}`))
-      .sort();
-    
-    const currentIndex = allLessons.findIndex(lessonId => lessonId === id);
+    const currentIndex = sortedLessons.findIndex(lesson => lesson.id === id);
     
     return {
-      prevLessonId: currentIndex > 0 ? allLessons[currentIndex - 1] : null,
-      nextLessonId: currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
+      prevLessonId: currentIndex > 0 ? sortedLessons[currentIndex - 1].id : null,
+      nextLessonId: currentIndex < sortedLessons.length - 1 ? sortedLessons[currentIndex + 1].id : null
     };
   };
   
   const { prevLessonId, nextLessonId } = getAdjacentLessons();
+  
+  const handleReturnToSkill = () => {
+    if (skillName) {
+      navigate(`/skills/${encodeURIComponent(skillName)}/lessons`);
+    } else {
+      navigate('/dashboard');
+    }
+  };
   
   return (
     <>
       <Navbar />
       <div className="container px-4 mx-auto py-8 max-w-4xl mt-16">
         <div className="mb-6 flex justify-between items-center">
-          <Link to="/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-800">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleReturnToSkill}
+            className="inline-flex items-center text-blue-600 hover:text-blue-800"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Dashboard
-          </Link>
+            {skillName ? `Back to ${skillName}` : 'Back to Dashboard'}
+          </Button>
           
           {!loading && lessonData && (
             <div className="flex items-center space-x-2">
@@ -279,8 +302,8 @@ const LessonPage = () => {
               <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           ) : (
-            <Button variant="outline" onClick={() => navigate('/dashboard')} className="inline-flex items-center">
-              Back to Dashboard
+            <Button variant="outline" onClick={handleReturnToSkill} className="inline-flex items-center">
+              Complete Skill
               <ChevronRight className="ml-1 h-4 w-4" />
             </Button>
           )}

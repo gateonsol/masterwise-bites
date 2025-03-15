@@ -36,6 +36,7 @@ interface SkillGridProps {
 interface Skill {
   name: string;
   icon: ReactNode;
+  description: string;
 }
 
 const SkillGrid = ({ category, onStart }: SkillGridProps) => {
@@ -47,45 +48,141 @@ const SkillGrid = ({ category, onStart }: SkillGridProps) => {
     switch (category) {
       case 'tech':
         return [
-          { name: 'Web Development', icon: <Laptop size={24} /> },
-          { name: 'Data Science', icon: <BarChart size={24} /> },
-          { name: 'AI & Machine Learning', icon: <Brain size={24} /> },
-          { name: 'Cloud Computing', icon: <Cloud size={24} /> },
+          { 
+            name: 'Web Development', 
+            icon: <Laptop size={24} />,
+            description: 'Learn HTML, CSS, JavaScript and modern web frameworks'
+          },
+          { 
+            name: 'Data Science', 
+            icon: <BarChart size={24} />,
+            description: 'Master data analysis, visualization and machine learning'
+          },
+          { 
+            name: 'AI & Machine Learning', 
+            icon: <Brain size={24} />,
+            description: 'Explore neural networks, deep learning and AI applications'
+          },
+          { 
+            name: 'Cloud Computing', 
+            icon: <Cloud size={24} />,
+            description: 'Build and deploy scalable applications in the cloud'
+          },
         ];
       case 'business':
         return [
-          { name: 'Marketing', icon: <TrendingUp size={24} /> },
-          { name: 'Leadership', icon: <Users size={24} /> },
-          { name: 'Public Speaking', icon: <Presentation size={24} /> },
-          { name: 'Project Management', icon: <ClipboardList size={24} /> },
+          { 
+            name: 'Marketing', 
+            icon: <TrendingUp size={24} />,
+            description: 'Learn digital marketing, SEO, and growth strategies'
+          },
+          { 
+            name: 'Leadership', 
+            icon: <Users size={24} />,
+            description: 'Develop effective leadership and management skills'
+          },
+          { 
+            name: 'Public Speaking', 
+            icon: <Presentation size={24} />,
+            description: 'Master presentation and communication techniques'
+          },
+          { 
+            name: 'Project Management', 
+            icon: <ClipboardList size={24} />,
+            description: 'Learn methodologies for successful project delivery'
+          },
         ];
       case 'design':
         return [
-          { name: 'UI/UX Design', icon: <Brush size={24} /> },
-          { name: 'Graphic Design', icon: <Palette size={24} /> },
-          { name: 'Motion Graphics', icon: <Play size={24} /> },
-          { name: 'Typography', icon: <Type size={24} /> },
+          { 
+            name: 'UI/UX Design', 
+            icon: <Brush size={24} />,
+            description: 'Create intuitive and beautiful digital interfaces'
+          },
+          { 
+            name: 'Graphic Design', 
+            icon: <Palette size={24} />,
+            description: 'Master visual communication and branding'
+          },
+          { 
+            name: 'Motion Graphics', 
+            icon: <Play size={24} />,
+            description: 'Create compelling animations and video effects'
+          },
+          { 
+            name: 'Typography', 
+            icon: <Type size={24} />,
+            description: 'Learn the principles of effective type design'
+          },
         ];
       case 'programming':
         return [
-          { name: 'JavaScript', icon: <Code size={24} /> },
-          { name: 'Python', icon: <Terminal size={24} /> },
-          { name: 'Mobile Development', icon: <Smartphone size={24} /> },
-          { name: 'Game Development', icon: <Gamepad size={24} /> },
+          { 
+            name: 'JavaScript', 
+            icon: <Code size={24} />,
+            description: 'Master modern JavaScript and popular frameworks'
+          },
+          { 
+            name: 'Python', 
+            icon: <Terminal size={24} />,
+            description: 'Learn Python for web, data science and automation'
+          },
+          { 
+            name: 'Mobile Development', 
+            icon: <Smartphone size={24} />,
+            description: 'Build native and cross-platform mobile applications'
+          },
+          { 
+            name: 'Game Development', 
+            icon: <Gamepad size={24} />,
+            description: 'Create engaging games with modern game engines'
+          },
         ];
       case 'music':
         return [
-          { name: 'Guitar', icon: <Music size={24} /> },
-          { name: 'Piano', icon: <Piano size={24} /> },
-          { name: 'Music Theory', icon: <FileText size={24} /> },
-          { name: 'Singing', icon: <Mic size={24} /> },
+          { 
+            name: 'Guitar', 
+            icon: <Music size={24} />,
+            description: 'Learn to play guitar from basics to advanced techniques'
+          },
+          { 
+            name: 'Piano', 
+            icon: <Piano size={24} />,
+            description: 'Master piano from fundamentals to performance'
+          },
+          { 
+            name: 'Music Theory', 
+            icon: <FileText size={24} />,
+            description: 'Understand the language and structure of music'
+          },
+          { 
+            name: 'Singing', 
+            icon: <Mic size={24} />,
+            description: 'Develop your vocal range and singing techniques'
+          },
         ];
       case 'personal':
         return [
-          { name: 'Productivity', icon: <Clock size={24} /> },
-          { name: 'Meditation', icon: <Heart size={24} /> },
-          { name: 'Critical Thinking', icon: <Brain size={24} /> },
-          { name: 'Time Management', icon: <Clock size={24} /> },
+          { 
+            name: 'Productivity', 
+            icon: <Clock size={24} />,
+            description: 'Optimize your workflow and time management'
+          },
+          { 
+            name: 'Meditation', 
+            icon: <Heart size={24} />,
+            description: 'Practice mindfulness and stress reduction techniques'
+          },
+          { 
+            name: 'Critical Thinking', 
+            icon: <Brain size={24} />,
+            description: 'Enhance problem-solving and decision-making skills'
+          },
+          { 
+            name: 'Time Management', 
+            icon: <Clock size={24} />,
+            description: 'Master techniques for prioritizing and focusing'
+          },
         ];
       default:
         return [];
@@ -126,8 +223,8 @@ const SkillGrid = ({ category, onStart }: SkillGridProps) => {
               {skill.icon}
             </div>
             <h3 className="text-lg font-semibold mb-2">{skill.name}</h3>
-            <p className="text-gray-500 text-sm mb-4">Master essential skills with bite-sized daily lessons</p>
-            <Button variant="outline" size="sm" onClick={() => handleStartLearning(skill.name)}>
+            <p className="text-gray-500 text-sm mb-4">{skill.description}</p>
+            <Button onClick={() => handleStartLearning(skill.name)}>
               Start Learning
             </Button>
           </div>

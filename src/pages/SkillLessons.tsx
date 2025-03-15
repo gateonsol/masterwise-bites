@@ -22,6 +22,7 @@ const SkillLessons = () => {
   const [completedLessons, setCompletedLessons] = useState(0);
   const [totalLearningTime, setTotalLearningTime] = useState(0);
   const [startDate, setStartDate] = useState<string | undefined>(undefined);
+  const [userSkill, setUserSkill] = useState<any>(null);
   
   useEffect(() => {
     // Fetch personalized lessons for the skill
@@ -34,10 +35,39 @@ const SkillLessons = () => {
           
           // Check if user has this skill in their list
           const userSkills = JSON.parse(localStorage.getItem('user_skills') || '[]');
-          const userSkill = userSkills.find((s: any) => s.name === skill);
+          const skillData = userSkills.find((s: any) => s.name === skill);
           
-          if (userSkill) {
-            setStartDate(userSkill.startDate);
+          if (skillData) {
+            setStartDate(skillData.startDate);
+            setUserSkill(skillData);
+          } else {
+            // If skill not found in user's skills, create it
+            toast({
+              title: "New skill added",
+              description: `${skill} has been added to your skills.`,
+            });
+            
+            // Create new skill entry
+            const today = new Date().toISOString().split('T')[0];
+            const newSkill = {
+              id: `skill-${Date.now()}`,
+              name: skill,
+              level: 'beginner',
+              progress: 0,
+              streak: 0,
+              estimatedTimeLeft: '30 days',
+              badgesEarned: 0,
+              totalBadges: 10,
+              todayLessonCompleted: false,
+              startDate: today
+            };
+            
+            // Update localStorage
+            const updatedSkills = [...userSkills, newSkill];
+            localStorage.setItem('user_skills', JSON.stringify(updatedSkills));
+            
+            setStartDate(today);
+            setUserSkill(newSkill);
           }
           
           // Transform LessonContent to include completed property
@@ -98,18 +128,13 @@ const SkillLessons = () => {
     .reduce((sum, lesson) => sum + lesson.duration, 0);
 
   // Define related skills based on the current skill category
-  const getRelatedSkills = (currentSkill: string) => {
-    // Map of skills to their related skills
-    const skillCategories: Record<string, string[]> = {
-      'JavaScript': ['TypeScript', 'React', 'Node.js', 'Web Development'],
-      'Python': ['Data Science', 'Machine Learning', 'Django', 'Flask'],
-      'Data Structures': ['Algorithms', 'Python', 'Java', 'Computer Science'],
-      'React': ['JavaScript', 'TypeScript', 'Redux', 'Web Development'],
-      // Add more mappings as needed
-    };
+  const getRelatedSkills = () => {
+    // Get actual skills from localStorage
+    const userSkills = JSON.parse(localStorage.getItem('user_skills') || '[]');
+    const skillNames = userSkills.map((s: any) => s.name);
     
-    // Return related skills or a default set
-    return skillCategories[currentSkill] || ['Python', 'JavaScript', 'Data Structures', 'Algorithms'];
+    // Return all other skills the user has
+    return skillNames.filter((name: string) => name !== skill);
   };
 
   return (
@@ -130,6 +155,7 @@ const SkillLessons = () => {
               completedLessons={completedLessons}
               totalLessons={lessons.length}
               startDate={startDate}
+              level={userSkill?.level || 'beginner'}
             />
             
             <div className="space-y-4">
@@ -151,7 +177,7 @@ const SkillLessons = () => {
             completedLessons={completedLessons}
             completedLearningTime={completedLearningTime}
             totalLessons={lessons.length}
-            relatedSkills={getRelatedSkills(skill)}
+            relatedSkills={getRelatedSkills()}
           />
         </div>
       </div>

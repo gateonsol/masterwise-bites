@@ -1,21 +1,21 @@
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Play, Clock, BookOpen, Headphones, Video } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Clock, PlayCircle, FileText, Headphones, CheckCircle, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-export type LessonType = 'video' | 'article' | 'podcast';
 
 export interface LessonCardProps {
   id: string;
   title: string;
   description: string;
-  duration: number; // in minutes
-  type: LessonType;
+  duration: number;
+  type: 'video' | 'article' | 'podcast';
+  completed?: boolean;
   thumbnailUrl?: string;
-  completed: boolean;
+  skillName?: string;
 }
 
 const LessonCard = ({
@@ -24,111 +24,107 @@ const LessonCard = ({
   description,
   duration,
   type,
+  completed = false,
   thumbnailUrl,
-  completed,
+  skillName
 }: LessonCardProps) => {
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
   
-  const getTypeIcon = (type: LessonType) => {
+  const getTypeIcon = () => {
     switch (type) {
-      case 'video': return <Video size={16} className="text-red-500" />;
-      case 'article': return <BookOpen size={16} className="text-blue-500" />;
-      case 'podcast': return <Headphones size={16} className="text-purple-500" />;
-      default: return <BookOpen size={16} />;
+      case 'video':
+        return <PlayCircle size={16} className="mr-1" />;
+      case 'article':
+        return <FileText size={16} className="mr-1" />;
+      case 'podcast':
+        return <Headphones size={16} className="mr-1" />;
+      default:
+        return <FileText size={16} className="mr-1" />;
     }
   };
   
-  const getTypeLabel = (type: LessonType) => {
-    return type.charAt(0).toUpperCase() + type.slice(1);
+  const getSkillNameFromLessonId = () => {
+    if (skillName) return skillName;
+    
+    // Extract skill name from lesson ID (format: skillname-lessonid)
+    const parts = id.split('-');
+    return parts[0].charAt(0).toUpperCase() + parts[0].slice(1);
   };
   
   return (
-    <div 
+    <Card
       className={cn(
-        "relative rounded-xl border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden transition-all duration-300",
+        "overflow-hidden transition-shadow duration-200",
         isHovered ? "shadow-md" : "shadow-sm",
-        completed ? "bg-gray-50/50 dark:bg-gray-800/50" : ""
+        completed ? "border-green-100 dark:border-green-900/30" : ""
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex flex-col md:flex-row">
-        {/* Thumbnail */}
-        <div className="relative md:w-1/3 aspect-video md:aspect-square overflow-hidden bg-gray-100 dark:bg-gray-800">
-          {thumbnailUrl ? (
-            <img 
-              src={thumbnailUrl} 
-              alt={title} 
-              className="w-full h-full object-cover transition-transform duration-500"
-              style={{
-                transform: isHovered ? 'scale(1.05)' : 'scale(1)'
-              }}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-              {type === 'video' && <Video size={32} className="text-gray-400" />}
-              {type === 'article' && <BookOpen size={32} className="text-gray-400" />}
-              {type === 'podcast' && <Headphones size={32} className="text-gray-400" />}
+      <CardContent className="p-0">
+        <div className="flex flex-col md:flex-row">
+          {thumbnailUrl && (
+            <div className="w-full md:w-1/3 h-40 md:h-auto bg-gray-100 dark:bg-gray-800">
+              <img
+                src={thumbnailUrl}
+                alt={title}
+                className="w-full h-full object-cover"
+              />
             </div>
           )}
           
-          {/* Play button for videos and podcasts */}
-          {(type === 'video' || type === 'podcast') && (
-            <div 
-              className={cn(
-                "absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity duration-300",
-                isHovered ? "opacity-100" : "opacity-0"
-              )}
-            >
-              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-                <Play size={20} className="text-gray-900 ml-1" />
-              </div>
-            </div>
-          )}
-          
-          {/* Completion badge */}
-          {completed && (
-            <div className="absolute top-2 right-2">
-              <Badge variant="default" className="bg-green-500">Completed</Badge>
-            </div>
-          )}
-        </div>
-        
-        {/* Content */}
-        <div className="p-5 flex-1 flex flex-col md:justify-between">
-          <div className="space-y-2 mb-4">
-            <div className="flex items-center">
-              <div className="flex items-center space-x-1 text-xs">
-                {getTypeIcon(type)}
-                <span className="text-gray-500">{getTypeLabel(type)}</span>
-              </div>
-              <div className="mx-2 text-gray-300">•</div>
-              <div className="flex items-center space-x-1 text-xs">
-                <Clock size={14} className="text-gray-400" />
-                <span className="text-gray-500">{duration} min</span>
+          <div className={`p-5 ${thumbnailUrl ? 'md:w-2/3' : 'w-full'}`}>
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <Badge variant="outline" className="flex items-center">
+                {getTypeIcon()}
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </Badge>
+              
+              <div className="flex items-center text-gray-500 text-sm">
+                <Clock size={14} className="mr-1" />
+                {duration} min
               </div>
             </div>
             
-            <h3 className="text-lg font-semibold leading-tight">{title}</h3>
-            <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
-          </div>
-          
-          <div className="mt-auto">
-            <Link to={`/lesson/${id}`}>
-              <Button 
-                variant={completed ? "outline" : "default"} 
-                className={cn(
-                  "w-full transition-all",
-                  completed ? "text-gray-500 hover:text-gray-700" : ""
-                )}
-              >
-                {completed ? "Review Lesson" : "Start Lesson"}
-              </Button>
-            </Link>
+            <h3 className="text-lg font-semibold mb-2 line-clamp-2">{title}</h3>
+            
+            <p className="text-gray-500 text-sm mb-3 line-clamp-2">{description}</p>
+            
+            <div className="flex items-center text-sm mb-4">
+              <BookOpen size={14} className="mr-1 text-blue-500" />
+              <span>{getSkillNameFromLessonId()}</span>
+            </div>
+            
+            {completed && (
+              <div className="flex items-center text-green-600 text-sm mb-3">
+                <CheckCircle size={14} className="mr-1" />
+                Completed
+              </div>
+            )}
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+      
+      <CardFooter className="px-5 py-3 bg-gray-50 dark:bg-gray-800/50 flex justify-between items-center">
+        {completed ? (
+          <Button variant="outline" onClick={() => navigate(`/lesson/${id}`)}>
+            Review
+          </Button>
+        ) : (
+          <Button onClick={() => navigate(`/lesson/${id}`)}>
+            Continue
+          </Button>
+        )}
+        
+        <Badge 
+          variant={completed ? "default" : "outline"} 
+          className={completed ? "bg-green-500" : ""}
+        >
+          {completed ? "Completed" : "In progress"}
+        </Badge>
+      </CardFooter>
+    </Card>
   );
 };
 

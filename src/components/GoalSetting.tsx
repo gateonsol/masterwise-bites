@@ -9,7 +9,6 @@ import LevelStep from './goal-setting/LevelStep';
 import StepNavigation from './goal-setting/StepNavigation';
 import { GoalData, SkillLevel } from './goal-setting/types';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/lib/supabase';
 
 interface GoalSettingProps {
   onComplete: (data: GoalData) => void;
@@ -45,16 +44,7 @@ const GoalSetting = ({ onComplete, initialSkill = '' }: GoalSettingProps) => {
     if (step < 3) {
       setStep(step + 1);
     } else {
-      // Check if user is authenticated
-      if (!user) {
-        toast({
-          title: "Login required",
-          description: "Please sign in or create an account to save your learning goal",
-          variant: "destructive",
-        });
-        return;
-      }
-      
+      // Create the goal data
       const goalData = { skill, timeframe, level };
       
       try {
@@ -66,6 +56,7 @@ const GoalSetting = ({ onComplete, initialSkill = '' }: GoalSettingProps) => {
         
         if (!skillExists) {
           // Create a new skill entry
+          const today = new Date().toISOString().split('T')[0];
           const newSkill = {
             id: `skill-${Date.now()}`,
             name: skill,
@@ -76,7 +67,7 @@ const GoalSetting = ({ onComplete, initialSkill = '' }: GoalSettingProps) => {
             badgesEarned: 0,
             totalBadges: 10,
             todayLessonCompleted: false,
-            startDate: new Date().toISOString().split('T')[0]
+            startDate: today
           };
           
           // Add to existing skills
